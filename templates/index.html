@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 m-0">Tickets</h1>
+  <form class="d-flex" method="get">
+    <select class="form-select" name="status" onchange="this.form.submit()">
+      <option value="todos" {{ 'selected' if status=='todos' else '' }}>Todos</option>
+      <option value="abiertos" {{ 'selected' if status=='abiertos' else '' }}>Abiertos</option>
+      <option value="cerrados" {{ 'selected' if status=='cerrados' else '' }}>Cerrados</option>
+    </select>
+  </form>
+</div>
+
+{% if tickets %}
+  <div class="table-responsive">
+    <table class="table table-striped align-middle">
+      <thead><tr><th>ID</th><th>Título</th><th>Estado</th><th>Creado</th><th class="text-end">Acciones</th></tr></thead>
+      <tbody>
+        {% for t in tickets %}
+        <tr>
+          <td>{{ t.id }}</td>
+          <td>{{ t.title }}</td>
+          <td>
+            {% if t.status == 'abierto' %}
+              <span class="badge bg-warning text-dark">Abierto</span>
+            {% else %}
+              <span class="badge bg-success">Cerrado</span>
+            {% endif %}
+          </td>
+          <td>{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td class="text-end">
+            {% if t.status != 'cerrado' %}
+            <form action="{{ url_for('cerrar', ticket_id=t.id) }}" method="post" class="d-inline">
+              <button class="btn btn-sm btn-outline-success">Cerrar</button>
+            </form>
+            {% endif %}
+            <form action="{{ url_for('eliminar', ticket_id=t.id) }}" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar ticket {{ t.id }}?')">
+              <button class="btn btn-sm btn-outline-danger">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="text-center text-muted py-5">
+    <p class="mb-2">No hay tickets todavía.</p>
+    <a class="btn btn-primary" href="{{ url_for('nuevo') }}">Crear el primero</a>
+  </div>
+{% endif %}
+{% endblock %}
